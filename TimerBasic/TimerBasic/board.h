@@ -36,6 +36,7 @@
 #define SW4         PD4
 
 // PORTE
+#define SOUND_OUT   PE3
 #define SW2         PE7         // input: switch (internal pull-up resistor required)
 
 // PORTF
