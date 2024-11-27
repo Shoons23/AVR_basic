@@ -7,16 +7,34 @@
 
 #include <avr/io.h>
 #include "board.h"
+#include <util/delay.h>
+
 #include "fnd.h"
 #include "signal_table.h"
+#include "led_pattern.h"
 
 uint8_t i= 0;
+uint8_t idx= 0;
+uint8_t duty_cycle= 50;
+
+ISR(INT3_vect){
+	if(duty_cycle > 0)
+	duty_cycle -= 10;
+}
+ISR(INT7_vect){
+	if(duty_cycle < 100)
+	duty_cycle += 10;
+}
 
 ISR(TIMER5_COMPA_vect){
 	OCR2A = signal_table[i++];
 }
-void ioport_init(void){
+void ioport_init(){
+	DDRB |= _BV(PB4); // OC2A output
+	DDRE |= _BV(PE3); // OC3A output
 	
+	PORTD = _BV(SW3); // pull-up resistor enable
+	PORTE = _BV(SW2); // pull-up resistor enable
 }
 void timer_init(void){
 	TCCR2A = _BV(COM2A1) | _BV(WGM21)| _BV(WGM20) ; // Fast PWM mode, OC2A output
@@ -32,10 +50,16 @@ void timer_init(void){
 	OCR5A = 1952;  // F_CPU/(8*256*4) -1;
 }
 void interrupt_init(void){
+	EICRA = _BV(ISC31); // Falling edge trigger
+	EICRB = _BV(ISC71); 
+	EIMSK = _BV(INT7) | _BV(INT3); // External interrupt enable
+	
+	TIMSK5 = _BV(OCIE5A);
+	
 	sei();
 }
 void set_timer3_dutycycle(uint8_t dutycycle){
-	OCR3A = 40*dutycycle; // ((ICR3+1)/100)*dutycycle
+	OCR3A = 10*dutycycle; // (TOP/100)*dutycycle 
 }
 int main(void)
 {
@@ -44,9 +68,11 @@ int main(void)
 	interrupt_init();
 	fnd_init();
 	
-    /* Replace with your application code */
     while (1) 
     {
+		led_write(led_pattern[idx++%8]);
+		_delay_ms(250);
+		set_timer3_dutycycle(duty_cycle);	
     }
 }
 
