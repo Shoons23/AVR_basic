@@ -33,7 +33,7 @@
 
 // PORTD
 #define SW3         PD3         // input: switch (internal pull-up resistor required)
-
+#define SW4			PD4
 // PORTE
 #define SW2         PE7         // input: switch (internal pull-up resistor required)
 

@@ -83,7 +83,6 @@ void fnd_clear_all(void)
     fnd_write(1, 0);
 	fnd_write(2, 0);
 }
-
 /* ----------------------------------------------------------------------------
  * display a hexadecimal number on an FND 
  * arguments
@@ -101,7 +100,21 @@ void fnd_write_number(uint8_t fnd_num, uint8_t num, uint8_t dot_on)
     fnd_write(fnd_num, value);    
 }
 
-void fnd_write_numbers(uint16_t num){
+
+void fnd_write_numbers(uint16_t num)
+{
+	uint8_t num_100, num_10, num_1;
+	
+	num_100 = num / 100;
+	num_10 = num / 10 % 10;
+	num_1 = num % 10;
+
+	fnd_write_number(0, num_1, 0);
+	fnd_write_number(1, num_10, 0);
+	fnd_write_number(2, num_100, 0);
+}
+
+void fnd_write_numbers_ultra(uint16_t num){
     uint8_t dot_off = 0x00;
     uint8_t value_u4 = num  % 10;
 	uint8_t value_u6 = (num / 10) % 10;

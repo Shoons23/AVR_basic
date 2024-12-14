@@ -14,5 +14,6 @@ void fnd_clear(uint8_t);
 void fnd_clear_all(void);
 void fnd_write_number(uint8_t, uint8_t, uint8_t);
 void fnd_write_numbers(uint16_t);
+void fnd_write_numbers_ultra(uint16_t);
 void led_write(uint8_t);
 #endif
