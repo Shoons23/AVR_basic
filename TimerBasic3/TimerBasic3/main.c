@@ -7,15 +7,13 @@
 
 #include <avr/io.h>
 #include "board.h"
-#include <util/delay.h>
-
 #include "fnd.h"
 #include "signal_table.h"
 #include "led_pattern.h"
 
-uint8_t i= 0;
-uint8_t idx= 0;
-uint8_t duty_cycle= 50;
+static uint8_t signal_idx= 0;
+static uint8_t pattern_idx= 0;
+volatile uint8_t duty_cycle= 50;
 
 ISR(INT3_vect){
 	if(duty_cycle > 0)
@@ -27,7 +25,7 @@ ISR(INT7_vect){
 }
 
 ISR(TIMER5_COMPA_vect){
-	OCR2A = signal_table[i++];
+	OCR2A = signal_table[signal_idx++];
 }
 void ioport_init(){
 	DDRB |= _BV(PB4); // OC2A output
@@ -41,8 +39,8 @@ void timer_init(void){
 	TCCR2B = _BV(CS20); // prescaler 1
 	OCR2A = 127; // Duty cycle 50% : (1+TOP)/2 -1 
 
-	TCCR3A = _BV(COM3A1) |_BV(WGM31); // Phase collect PWM mode
-	TCCR3B = _BV(WGM33) | _BV(CS31); // prescaler 8, 
+	TCCR3A = _BV(COM3A1) |_BV(WGM31); // Phase correct PWM mode
+	TCCR3B = _BV(WGM33) | _BV(CS31); // prescaler 8 
 	ICR3 = 1000; // F_CPU/(2*8*freq), freq = 1000  
 	OCR3A = 500; // Duty cycle 50% : TOP/2 
 	
@@ -70,7 +68,7 @@ int main(void)
 	
     while (1) 
     {
-		led_write(led_pattern[idx++%8]);
+		led_write(led_pattern[pattern_idx++%8]);
 		_delay_ms(250);
 		set_timer3_dutycycle(duty_cycle);	
     }

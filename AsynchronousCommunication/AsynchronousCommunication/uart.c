@@ -10,7 +10,7 @@
 void uart_init(void){
 	#define BAUDRATE 115200L
 	
-	UBRR0 = F_CPU/(8*BAUDRATE) -1; // error : 2.1%
+	UBRR0 = F_CPU/(8.0*BAUDRATE) -1; // error : 2.1%
 	UCSR0A = _BV(U2X0); // Double Speed Mode
 	UCSR0B = _BV(RXEN0) | _BV(TXEN0);//  Rx, Tx enable
 	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // 8bit character size

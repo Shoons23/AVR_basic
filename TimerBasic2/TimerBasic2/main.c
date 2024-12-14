@@ -6,23 +6,23 @@
  */ 
 
 #include <avr/io.h>
-#include <avr/interrupt.h>  
-#include "fnd.h"
 #include "board.h"
+#include "fnd.h"
 #include "sound.h"
 #include "music_data.h"
 
+// variable modified interrupt
 volatile uint16_t fnd_num = 0;
 volatile uint8_t mode = 0;
-volatile uint8_t note_idx = 0;
+volatile uint8_t note_idx = 0; 
 
 ISR(INT3_vect){
 	note_idx = 0; // index 0
 }
 
 ISR(INT7_vect){
-	mode ^= 1;
-	if(!mode) {
+	mode= !mode;
+	if(mode == 0) {
 		fnd_num = 0;
 	}
 }
@@ -32,15 +32,23 @@ ISR(TIMER5_COMPA_vect){
 	fnd_num = (fnd_num + 1) % 1000;
 }
 
-void my_delay_ms(uint16_t ms)
-{
+
+void my_delay_ms(uint16_t ms){
 	for(uint16_t i=0; i<ms; i++) {
 		_delay_ms(1);    
 	}
 }
 
-void timer_init(void)
-{
+void ioport_init(void){
+	DDRB = _BV(LED_COLOR);
+	DDRC = _BV(LED1) | _BV(LED2) | _BV(LED3) | _BV(LED4);
+	DDRE = _BV(SOUND_OUT);
+	
+	PORTE = _BV(SW2);
+	PORTD = _BV(SW3);
+}
+
+void timer_init(void){
 	TCCR3A |= _BV(COM3A0);
 	TCCR3B |= _BV(WGM32); 
 	
@@ -50,22 +58,11 @@ void timer_init(void)
 	
 }
 
-void interrupt_init(void)
-{
+void interrupt_init(void){
 	EICRA |= _BV(ISC31); // falling edge triggered
 	EICRB |= _BV(ISC71); // falling edge triggered
 	EIMSK |= _BV(INT7) | _BV(INT3); // interrupt enable
 	sei();
-}
-
-void ioport_init(void)
-{
-	DDRB = _BV(LED_COLOR);  
-	DDRC = _BV(LED1) | _BV(LED2) | _BV(LED3) | _BV(LED4);
-	DDRE = _BV(PE3);
-	
-	PORTE = _BV(SW2);
-	PORTD = _BV(SW3);
 }
 
 
@@ -85,11 +82,11 @@ int main(void){
 		if(mode){
 			if(m_notes[note_idx] == 0){
 				sound_mute();
-				my_delay_ms(m_duration[note_idx]);
+				my_delay_ms(m_duration[note_idx]*music_tempo);
 			}
 			else{
-				sound_set_frequency(m_notes[note_idx%note_size]);
-				my_delay_ms(m_duration[note_idx%note_size]);
+				sound_set_frequency(m_notes[note_idx % note_size]);
+				my_delay_ms(m_duration[note_idx%note_size*music_tempo]);
 				note_idx++;
 			}
 		}
@@ -151,25 +148,4 @@ int main(void){
 	//}
 //}
 
-/*int main(void)
-{
-	ioport_init();
-	fnd_init();
-	interrupt_init();
-	timer_init();
-	
-	while (1) {
-		fnd_write_numbers(fnd_num);
-		
-		for(; note_idx < sizeof(m_notes)/2; note_idx++) {
-			
-			if(m_notes[note_idx] == XX) {sound_mute();} //
-			else {sound_set_frequency(m_notes[note_idx]);}
-			my_delay_ms(m_duration[note_idx] * music_tempo);
-			
-		}	
-	
-		
-	}
-}*/
 

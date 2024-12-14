@@ -10,7 +10,7 @@
 #include "board.h"
 #include "fnd.h"
 
-uint16_t fnd_num = 0;
+volatile uint16_t fnd_num = 0;
 uint8_t i = 0;
 
 ISR(INT3_vect){

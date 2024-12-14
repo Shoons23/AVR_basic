@@ -1,11 +1,4 @@
-/*
- * ----------------------------------------------------------------------------
- * FND/LED interface functions
- *
- * Author       : Moon
- * Target MCU   : ATMEL AVR ATmega128/1281
- * ----------------------------------------------------------------------------
- */
+
 
 #include "board.h"
 #include "fnd.h"
@@ -70,6 +63,7 @@ void fnd_write(uint8_t fnd_num, uint8_t value)
         sei();              // enable interrupt        
 }
 
+
 /* ----------------------------------------------------------------------------
  * clear FND 
  * arguments
@@ -87,7 +81,7 @@ void fnd_clear_all(void)
 {
     fnd_write(0, 0);
     fnd_write(1, 0);
-    fnd_write(2, 0);
+	fnd_write(2, 0);
 }
 
 /* ----------------------------------------------------------------------------
@@ -107,32 +101,26 @@ void fnd_write_number(uint8_t fnd_num, uint8_t num, uint8_t dot_on)
     fnd_write(fnd_num, value);    
 }
 
-/* ----------------------------------------------------------------------------
- * display a decimal number on an FND 
- * arguments
- *  - num: decimal number to display on FND (0 ~ 999)
- * -------------------------------------------------------------------------- */
-void fnd_write_numbers(uint16_t num)
-{
-    uint8_t num_100, num_10, num_1;
-    
-    num_100 = num / 100;
-    num_10 = num / 10 % 10;
-    num_1 = num % 10;
-    
-    if(num < 10) {
-        fnd_write(2, 0);
-        fnd_write(1, 0);
-        fnd_write_number(0, num_1, 0);    
-    } else if (num < 100) {
-        fnd_write(2, 0);    
-        fnd_write_number(1, num_10, 0);
-        fnd_write_number(0, num_1, 0);
-    } else {        
-        fnd_write_number(0, num_1, 0);
-        fnd_write_number(1, num_10, 0);
-        fnd_write_number(2, num_100, 0);                
-    }    
+void fnd_write_numbers(uint16_t num){
+    uint8_t dot_off = 0x00;
+    uint8_t value_u4 = num  % 10;
+	uint8_t value_u6 = (num / 10) % 10;
+	uint8_t value_u8 = num / 100;
+	
+	if(num < 10){
+		fnd_write_number(0, value_u4, dot_off);
+		fnd_write(1, 0);
+		fnd_write(2, 0);
+	}
+	else if(num < 100) {
+		fnd_write_number(0, value_u4, dot_off);
+		fnd_write_number(1, value_u6, dot_off);
+		}
+	else {
+	    fnd_write_number(0, value_u4, dot_off);
+	    fnd_write_number(1, value_u6, dot_off);
+	    fnd_write_number(2, value_u8, dot_off);
+	}
 }
 
 /* ----------------------------------------------------------------------------

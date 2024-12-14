@@ -15,14 +15,13 @@ ISR(TIMER5_COMPA_vect){
 
 void timer_init(void){
 	TCCR3A |= _BV(COM3A0) | _BV(COM3B0); // Comapare Output Mode setting: toggle 
-	TCCR3B |= _BV(WGM32) |_BV(CS31); // 16 bit timer 3, CTC mode , 250 clk, prescaler 8
-	TIFR3 = _BV(OCF3A); // Compare Match flag set
+	TCCR3B |= _BV(WGM32) |_BV(CS31); // 16 bit timer 3, CTC mode, prescaler 8
 	
-	OCR3A = 249;
-	OCR3B = 124;
+	OCR3A = 249; // 250 clk
+	OCR3B = 124; // 124 clk 
 	
 	TCCR5B |= _BV(WGM52)| _BV(CS51) | _BV(CS50);// 16 bit timer 5, CTC mode, prescaler 64
-	TIMSK5 |= _BV(TOIE5); // overflow interrupt enable
+	
 	
 	// 100 = (F_CPU/prescaler-n)/1+OCR5A_value
 	OCR5A = F_CPU/(64*100) - 1;
@@ -41,12 +40,12 @@ void interrupt_init(void){
 
 int main()
 {
-	
 	ioport_init();
-	interrupt_init();
 	timer_init();
+	interrupt_init();
 	
-	while(1){
+	while(1)
+	{
 	
 	}
 }
@@ -56,13 +55,9 @@ int main()
 
 
 
-// 5. 
-//ISR(TIMER5_OVF_vect){
-	//PORTB ^= _BV(PB5);
-	//TCNT5 = -2500;
-//}
 
-//3. 
+
+// 3. 
 //int main()
 //{
 	//timer_init();
@@ -85,10 +80,24 @@ int main()
 	//TCNT5 = -2500;
 	//
 	//while(1){
-		//if(TIFR5&&_BV(TOV5)){
-			//PORTB ^= _BV(TOV5);
+		//if(TIFR5 &_BV(TOV5)){
+			//PORTB ^= _BV(PB5);
 			//TIFR5 = _BV(TOV5);
 			//TCNT5 = 63356;
 		//}
+	//}
+//}
+
+// 5.
+//ISR(TIMER5_OVF_vect){
+//PORTB ^= _BV(PB5);
+//TCNT5 = -2500;
+//}
+//int main(){
+	//timer_init();
+	//TIMSK5 |= _BV(TOIE5);
+	//
+	//while(1){
+		//
 	//}
 //}

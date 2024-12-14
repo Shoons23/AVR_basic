@@ -131,6 +131,9 @@
     <Compile Include="fnd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="led_pattern.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
